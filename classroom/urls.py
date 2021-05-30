@@ -51,7 +51,7 @@ urlpatterns = [
         views.MarkDetailView.as_view()
     ),
     path(
-        'course/<int:course_id>/mark/<int:mark_id>/commentary/',
+        'course/<int:course_id>/solution/<int:solution_id>/mark/<int:mark_id>/commentary/',
         views.CommentaryCreateView.as_view()
     ),
 
