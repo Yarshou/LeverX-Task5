@@ -41,11 +41,11 @@ class StudentHasNoSolution(permissions.BasePermission):
 class UserSolutionOwner(permissions.BasePermission):
 
     def has_permission(self, request, view):
-        homework_id = view.kwargs['homework_id']
-        user_id = request.user.id
-        solutions = Solution.objects.filter(homework_id=homework_id)
+        solution_id = view.kwargs['solution_id']
+        user = request.user
+        solution = Solution.objects.filter(id=solution_id)
         try:
-            get_object_or_404(solutions, user_id=user_id)
+            get_object_or_404(solution, user=user)
             return True
         except Http404:
             return False
