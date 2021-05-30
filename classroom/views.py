@@ -105,6 +105,7 @@ class LectureListDetailView(generics.RetrieveUpdateDestroyAPIView):
         course = Course.objects.get(id=course_id)
         lectures = Lecture.objects.filter(course=course)
         lecture = get_object_or_404(lectures, id=lecture_id)
+        LectureSerializer().update(lecture, validated_data=request.data)
         return Response(LectureSerializer(lecture).data, status=HTTP_200_OK)
 
     def delete(self, request, *args, **kwargs):
@@ -130,7 +131,7 @@ class HomeworkListCreateView(generics.ListCreateAPIView):
         serializer.save(lecture_id=self.kwargs['lecture_id'])
 
 
-class HomeworkListDetailView(generics.RetrieveUpdateDestroyAPIView):
+class HomeworkListDetailView(generics.RetrieveAPIView):
     serializer_class = HomeworkSerializer
     queryset = Homework.objects.all()
     lookup_url_kwarg = 'homework_id'
@@ -208,9 +209,9 @@ class MarkDetailView(generics.RetrieveAPIView):
     def get(self, request, *args, **kwargs):
         solution_id = kwargs['solution_id']
         mark_id = kwargs['mark_id']
-        mark = Mark.objects.filter(solution_id=solution_id)
-        marks = get_object_or_404(mark, id=mark_id)
-        return Response(MarkSerializer(marks).data, status=HTTP_200_OK)
+        marks = Mark.objects.filter(solution_id=solution_id)
+        mark = get_object_or_404(marks, id=mark_id)
+        return Response(MarkSerializer(mark).data, status=HTTP_200_OK)
 
 
 class CommentaryCreateView(generics.ListCreateAPIView):
