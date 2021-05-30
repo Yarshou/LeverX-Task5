@@ -16,13 +16,13 @@ class CourseMemberSerializer(serializers.ModelSerializer):
 
 class CommentarySerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    user_id = CourseMemberSerializer(read_only=True)
+    user = CourseMemberSerializer(read_only=True)
 
     class Meta:
         model = Commentary
         fields = [
             'id',
-            'user_id',
+            'user',
             'text',
         ]
 
@@ -113,7 +113,7 @@ class HomeworkSolutionsSerializer(serializers.ModelSerializer):
 
 
 class LectureSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(required=False)
+    id = serializers.IntegerField(read_only=True)
     homeworks = HomeworkSerializer(source='homework', many=True, read_only=True)
 
     class Meta:
@@ -132,6 +132,7 @@ class LectureSerializer(serializers.ModelSerializer):
         return Lecture.objects.create(course=course, **validated_data)
 
     def update(self, instance, validated_data):
+        print(f"THIS IS VALIDATED DATA: {validated_data}")
         instance.title = validated_data.get('title', instance.title)
         instance.description = validated_data.get('description', instance.description)
         instance.file = validated_data.get('file', instance.file)
