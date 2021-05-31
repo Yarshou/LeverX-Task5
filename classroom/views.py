@@ -91,32 +91,6 @@ class LectureListDetailView(generics.RetrieveUpdateDestroyAPIView):
         UserIsTeacher | SafeOnly,
     ]
 
-    def get(self, request, *args, **kwargs):
-        course_id = kwargs['course_id']
-        lecture_id = kwargs['lecture_id']
-        course = Course.objects.get(id=course_id)
-        lectures = Lecture.objects.filter(course=course)
-        lecture = get_object_or_404(lectures, id=lecture_id)
-        return Response(LectureSerializer(lecture).data, status=HTTP_200_OK)
-
-    def update(self, request, *args, **kwargs):
-        course_id = kwargs['course_id']
-        lecture_id = kwargs['lecture_id']
-        course = Course.objects.get(id=course_id)
-        lectures = Lecture.objects.filter(course=course)
-        lecture = get_object_or_404(lectures, id=lecture_id)
-        LectureSerializer().update(lecture, validated_data=request.data)
-        return Response(LectureSerializer(lecture).data, status=HTTP_200_OK)
-
-    def delete(self, request, *args, **kwargs):
-        course_id = kwargs['course_id']
-        lecture_id = kwargs['lecture_id']
-        course = Course.objects.get(id=course_id)
-        lectures = Lecture.objects.filter(course=course)
-        lecture = get_object_or_404(lectures, id=lecture_id)
-        lecture.delete()
-        return Response(LectureSerializer(lecture).data, status=HTTP_200_OK)
-
 
 class HomeworkListCreateView(generics.ListCreateAPIView):
     serializer_class = HomeworkSerializer
@@ -205,13 +179,6 @@ class MarkDetailView(generics.RetrieveAPIView):
         (UserIsStudent and UserSolutionOwner) |
         UserIsTeacher
     ]
-
-    def get(self, request, *args, **kwargs):
-        solution_id = kwargs['solution_id']
-        mark_id = kwargs['mark_id']
-        marks = Mark.objects.filter(solution_id=solution_id)
-        mark = get_object_or_404(marks, id=mark_id)
-        return Response(MarkSerializer(mark).data, status=HTTP_200_OK)
 
 
 class CommentaryCreateView(generics.ListCreateAPIView):

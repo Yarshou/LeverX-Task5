@@ -131,13 +131,6 @@ class LectureSerializer(serializers.ModelSerializer):
         course = Course.objects.get(id=course_id)
         return Lecture.objects.create(course=course, **validated_data)
 
-    def update(self, instance, validated_data):
-        instance.title = validated_data.get('title', instance.title)
-        instance.description = validated_data.get('description', instance.description)
-        instance.file = validated_data.get('file', instance.file)
-        instance.save()
-        return instance
-
 
 class CourseSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
