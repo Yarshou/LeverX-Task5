@@ -40,8 +40,6 @@ class CourseListAddMemberView(generics.ListCreateAPIView):
             course.student.add(user)
         elif user.role == 'Teacher':
             course.teacher.add(user)
-        else:
-            return Response(data=None, status=HTTP_400_BAD_REQUEST)
 
         return Response(data=CourseSerializer(course).data, status=HTTP_200_OK)
 
