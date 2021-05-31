@@ -73,10 +73,10 @@ class SolutionSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
-        user_id = validated_data.pop('user_id')
+        user = validated_data.pop('user_id')
         homework_id = validated_data.pop('homework_id')
         homework = Homework.objects.get(id=homework_id)
-        return Solution.objects.create(user=user_id, homework=homework, **validated_data)
+        return Solution.objects.create(user=user, homework=homework, **validated_data)
 
 
 class HomeworkSerializer(serializers.ModelSerializer):

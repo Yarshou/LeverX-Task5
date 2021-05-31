@@ -139,7 +139,7 @@ class SolutionListCreateView(generics.ListCreateAPIView):
     ]
 
     def perform_create(self, serializer):
-        serializer.save(user_id=self.request.user, homework_id=self.kwargs['homework_id'])
+        serializer.save(user=self.request.user, homework_id=self.kwargs['homework_id'])
 
 
 class SolutionDetailView(generics.RetrieveAPIView):
