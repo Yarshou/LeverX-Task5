@@ -31,7 +31,7 @@ urlpatterns = [
         views.HomeworkListDetailView.as_view()
     ),
     path(
-        'course/<int:course_id>/homework-solutions/<int:homework_id>',
+        'course/<int:course_id>/lecture/<int:lecture_id>/homework-solutions/<int:homework_id>/',
         views.HomeworkSolutionsDetailView.as_view()
     ),
     path(

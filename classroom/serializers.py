@@ -28,6 +28,13 @@ class CommentarySerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = validated_data.pop('user')
+        course_id = validated_data.pop('course_id')
+        solution_id = validated_data.pop('solution_id')
+        solution = Solution.objects.get(id=solution_id)
+        homework = solution.homework
+        lecture = homework.lecture
+        if lecture.course != Course.objects.get(id=course_id):
+            raise serializers.ValidationError({"payload": "Invalid solution"})
         mark_id = validated_data.pop('mark_id')
         mark = Mark.objects.get(id=mark_id)
         return Commentary.objects.create(user=user, mark=mark, **validated_data)
@@ -102,7 +109,10 @@ class HomeworkSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         lecture_id = validated_data.pop('lecture_id')
+        course_id = validated_data.pop('course_id')
         lecture = Lecture.objects.get(id=lecture_id)
+        if lecture.course != Course.objects.get(id=course_id):
+            raise serializers.ValidationError({"payload": "Invalid lecture"})
         return Homework.objects.create(lecture=lecture, **validated_data)
 
 
