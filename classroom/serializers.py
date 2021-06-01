@@ -47,8 +47,13 @@ class MarkSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         creator = validated_data.pop('creator')
+        course_id = validated_data.pop('course_id')
         solution_id = validated_data.pop('solution_id')
         solution = Solution.objects.get(id=solution_id)
+        homework = solution.homework
+        lecture = homework.lecture
+        if lecture.course != Course.objects.get(id=course_id):
+            raise serializers.ValidationError({"payload": "Invalid solution"})
         value = validated_data.pop('value')
         try:
             mark = Mark.objects.get(solution=solution)
@@ -73,9 +78,13 @@ class SolutionSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
-        user = validated_data.pop('user_id')
+        user = validated_data.pop('user')
         homework_id = validated_data.pop('homework_id')
+        course_id = validated_data.pop('course_id')
         homework = Homework.objects.get(id=homework_id)
+        lecture = homework.lecture
+        if lecture.course != Course.objects.get(id=course_id):
+            raise serializers.ValidationError({"payload": "Invalid homework"})
         return Solution.objects.create(user=user, homework=homework, **validated_data)
 
 

@@ -89,6 +89,10 @@ class LectureListDetailView(generics.RetrieveUpdateDestroyAPIView):
         UserIsTeacher | SafeOnly,
     ]
 
+    def get_queryset(self):
+        course = Course.objects.get(id=self.kwargs['course_id'])
+        return Lecture.objects.filter(course=course)
+
 
 class HomeworkListCreateView(generics.ListCreateAPIView):
     serializer_class = HomeworkSerializer
@@ -114,6 +118,10 @@ class HomeworkListDetailView(generics.RetrieveAPIView):
         UserIsTeacher | SafeOnly
     ]
 
+    def get_queryset(self):
+        lecture = Lecture.objects.get(id=self.kwargs['lecture_id'])
+        return Homework.objects.filter(lecture=lecture)
+
 
 class HomeworkSolutionsDetailView(generics.RetrieveAPIView):
     serializer_class = HomeworkSolutionsSerializer
@@ -126,6 +134,10 @@ class HomeworkSolutionsDetailView(generics.RetrieveAPIView):
         UserIsTeacher,
     ]
 
+    def get_queryset(self):
+        lecture = Lecture.objects.get(id=self.kwargs['lecture_id'])
+        return Homework.objects.filter(lecture=lecture)
+
 
 class SolutionListCreateView(generics.ListCreateAPIView):
     serializer_class = SolutionSerializer
@@ -137,7 +149,7 @@ class SolutionListCreateView(generics.ListCreateAPIView):
     ]
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user, homework_id=self.kwargs['homework_id'])
+        serializer.save(user=self.request.user, homework_id=self.kwargs['homework_id'], course_id=self.kwargs['course_id'])
 
 
 class SolutionDetailView(generics.RetrieveAPIView):
@@ -163,7 +175,7 @@ class MarkCreateView(generics.ListCreateAPIView):
     ]
 
     def perform_create(self, serializer):
-        serializer.save(creator=self.request.user, solution_id=self.kwargs['solution_id'])
+        serializer.save(creator=self.request.user, solution_id=self.kwargs['solution_id'], course_id=self.kwargs['course_id'])
 
 
 class MarkDetailView(generics.RetrieveAPIView):
