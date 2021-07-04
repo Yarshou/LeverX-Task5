@@ -3,7 +3,6 @@ from rest_framework import viewsets, generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
-from rest_framework.exceptions import ValidationError
 
 from .models import Course, User, Lecture, Homework, Solution, Mark
 
@@ -55,7 +54,7 @@ class CourseListDeleteMemberView(generics.DestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
         member = request.data.get('username')
-        course = get_object_or_404(Course, id=kwargs['course_id'])
+        course = get_object_or_404(Course, id=kwargs.get('course_id'))
         user = get_object_or_404(User, username=member)
         if user.role == 'Student':
             course.student.remove(user)
@@ -76,7 +75,7 @@ class LectureListCreateView(generics.ListCreateAPIView):
     ]
 
     def perform_create(self, serializer):
-        serializer.save(course_id=self.kwargs['course_id'])
+        serializer.save(course_id=self.kwargs.get('course_id'))
 
 
 class LectureListDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -91,7 +90,7 @@ class LectureListDetailView(generics.RetrieveUpdateDestroyAPIView):
     ]
 
     def get_queryset(self):
-        course = Course.objects.get(id=self.kwargs['course_id'])
+        course = Course.objects.get(id=self.kwargs.get('course_id'))
         return Lecture.objects.filter(course=course)
 
 
@@ -105,7 +104,7 @@ class HomeworkListCreateView(generics.ListCreateAPIView):
     ]
 
     def perform_create(self, serializer):
-        serializer.save(lecture_id=self.kwargs['lecture_id'], course_id=self.kwargs['course_id'])
+        serializer.save(lecture_id=self.kwargs['lecture_id'])
 
 
 class HomeworkListDetailView(generics.RetrieveAPIView):
@@ -119,13 +118,6 @@ class HomeworkListDetailView(generics.RetrieveAPIView):
         UserIsTeacher | SafeOnly
     ]
 
-    def get_queryset(self):
-        lecture = Lecture.objects.get(id=self.kwargs['lecture_id'])
-        course_id = self.kwargs['course_id']
-        if lecture.course != Course.objects.get(id=course_id):
-            raise ValidationError({"payload": "invalid data"})
-        return Homework.objects.filter(lecture=lecture)
-
 
 class HomeworkSolutionsDetailView(generics.RetrieveAPIView):
     serializer_class = HomeworkSolutionsSerializer
@@ -138,13 +130,6 @@ class HomeworkSolutionsDetailView(generics.RetrieveAPIView):
         UserIsTeacher,
     ]
 
-    def get_queryset(self):
-        lecture = Lecture.objects.get(id=self.kwargs['lecture_id'])
-        course_id = self.kwargs['course_id']
-        if lecture.course != Course.objects.get(id=course_id):
-            raise ValidationError({"payload": "invalid data"})
-        return Homework.objects.filter(lecture=lecture)
-
 
 class SolutionListCreateView(generics.ListCreateAPIView):
     serializer_class = SolutionSerializer
@@ -156,8 +141,10 @@ class SolutionListCreateView(generics.ListCreateAPIView):
     ]
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user, homework_id=self.kwargs['homework_id'],
-                        course_id=self.kwargs['course_id'])
+        serializer.save(
+            user=self.request.user,
+            homework_id=self.kwargs['homework_id']
+        )
 
 
 class SolutionDetailView(generics.RetrieveAPIView):
@@ -183,8 +170,10 @@ class MarkCreateView(generics.ListCreateAPIView):
     ]
 
     def perform_create(self, serializer):
-        serializer.save(creator=self.request.user, solution_id=self.kwargs['solution_id'],
-                        course_id=self.kwargs['course_id'])
+        serializer.save(
+            creator=self.request.user,
+            solution_id=self.kwargs['solution_id']
+        )
 
 
 class MarkDetailView(generics.RetrieveAPIView):
@@ -214,6 +203,5 @@ class CommentaryCreateView(generics.ListCreateAPIView):
         serializer.save(
             user=self.request.user,
             mark_id=self.kwargs['mark_id'],
-            course_id=self.kwargs['course_id'],
             solution_id=self.kwargs['solution_id']
         )

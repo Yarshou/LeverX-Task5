@@ -1,9 +1,9 @@
+from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions
 
-import classroom.models
-from classroom.models import Course, Solution
+from classroom.models import Course, Solution, Lecture
 
 
 class SafeOnly(permissions.BasePermission):
@@ -54,14 +54,23 @@ class UserSolutionOwner(permissions.BasePermission):
 class UserIsCourseMember(permissions.BasePermission):
 
     def has_permission(self, request, view):
-        if 'course_id' not in view.kwargs:
-            return False
-        else:
-            course_id = view.kwargs['course_id']
+        course_id = view.kwargs.get('course_id', False)
+        lecture_id = view.kwargs.get('lecture_id', False)
+        homework_id = view.kwargs.get('homework_id', False)
+        solution_id = view.kwargs.get('solution_id', False)
+
         try:
-            course = Course.objects.get(id=course_id)
-        except classroom.models.Course.DoesNotExist:
+            course = Course.objects.get(
+                Q(pk=course_id) |
+                Q(related_lectures__id=lecture_id) |
+                Q(related_lectures__related_homework__id=homework_id) |
+                Q(related_lectures__related_homework__related_solution__id=solution_id)
+            )
+        except Course.MultipleObjectsReturned:
             return False
+        except Course.DoesNotExist:
+            return False
+
         try:
             user_role = request.user.role
         except AttributeError:
